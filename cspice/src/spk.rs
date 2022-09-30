@@ -76,6 +76,7 @@ where
 /// by loaded SPK files.#[allow(clippy::too_many_arguments)]
 ///
 /// See [spkcpt_c](https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/spkcpt_c.html)
+#[allow(clippy::too_many_arguments)]
 pub fn constant_position_target_state<'tcm, 'trf, 'orf, 'r, 'obr, TCM, TRF, ORF, R, OBR>(
     mut target_position: Rectangular,
     target_center_of_motion: TCM,
