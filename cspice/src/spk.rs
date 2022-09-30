@@ -32,6 +32,7 @@ impl From<[SpiceDouble; 6]> for State {
 /// rather than by loaded SPK files.
 ///
 /// See [spkcpo_c](https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/spkcpo_c.html)
+#[allow(clippy::too_many_arguments)]
 pub fn constant_position_observer_state<'t, 'otr, 'r, 'obc, 'obr, T, OTR, R, OBC, OBR>(
     target: T,
     et: Et,
@@ -69,6 +70,12 @@ where
     Ok((pos_vel.into(), light_time))
 }
 
+/// Return the state, relative to a specified observer, of a target
+/// having constant position in a specified reference frame. The
+/// target's position is provided by the calling program rather than
+/// by loaded SPK files.#[allow(clippy::too_many_arguments)]
+///
+/// See [spkcpt_c](https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/spkcpt_c.html)
 pub fn constant_position_target_state<'tcm, 'trf, 'orf, 'r, 'obr, TCM, TRF, ORF, R, OBR>(
     mut target_position: Rectangular,
     target_center_of_motion: TCM,
