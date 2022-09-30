@@ -6,7 +6,7 @@ use crate::string::StringParam;
 use crate::time::Et;
 use crate::vector::Vector3D;
 use crate::{spice_unsafe, Error};
-use cspice_sys::{spkcpo_c, spkez_c, spkezp_c, spkezr_c, spkpos_c, SpiceDouble};
+use cspice_sys::{spkcpo_c, spkcpt_c, spkez_c, spkezp_c, spkezr_c, spkpos_c, SpiceDouble};
 use derive_more::Into;
 
 /// A Cartesian state vector representing the position and velocity of the target body
@@ -32,7 +32,6 @@ impl From<[SpiceDouble; 6]> for State {
 /// rather than by loaded SPK files.
 ///
 /// See [spkcpo_c](https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/spkcpo_c.html)
-
 pub fn constant_position_observer_state<'t, 'otr, 'r, 'obc, 'obr, T, OTR, R, OBC, OBR>(
     target: T,
     et: Et,
@@ -62,6 +61,43 @@ where
             &mut observer_state.position.x,
             observer_center_of_motion.into().as_mut_ptr(),
             observer_reference_frame.into().as_mut_ptr(),
+            pos_vel.as_mut_ptr(),
+            &mut light_time,
+        )
+    });
+    get_last_error()?;
+    Ok((pos_vel.into(), light_time))
+}
+
+pub fn constant_position_target_state<'tcm, 'trf, 'orf, 'r, 'obr, TCM, TRF, ORF, R, OBR>(
+    mut target_position: Rectangular,
+    target_center_of_motion: TCM,
+    target_reference_frame: TRF,
+    et: Et,
+    output_state_reference_frame: ORF,
+    reference_frame_locus: R,
+    aberration_correction: AberrationCorrection,
+    observering_object_name: OBR,
+) -> Result<(State, SpiceDouble), Error>
+where
+    TCM: Into<StringParam<'tcm>>,
+    TRF: Into<StringParam<'trf>>,
+    ORF: Into<StringParam<'orf>>,
+    R: Into<StringParam<'r>>,
+    OBR: Into<StringParam<'obr>>,
+{
+    let mut pos_vel = [0.0f64; 6];
+    let mut light_time = 0.0;
+    spice_unsafe!({
+        spkcpt_c(
+            &mut target_position.x,
+            target_center_of_motion.into().as_mut_ptr(),
+            target_reference_frame.into().as_mut_ptr(),
+            et.0,
+            output_state_reference_frame.into().as_mut_ptr(),
+            reference_frame_locus.into().as_mut_ptr(),
+            aberration_correction.as_spice_char(),
+            observering_object_name.into().as_mut_ptr(),
             pos_vel.as_mut_ptr(),
             &mut light_time,
         )
